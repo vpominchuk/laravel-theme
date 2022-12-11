@@ -1,0 +1,32 @@
+{
+    "name": "vpominchuk/laravel-theme",
+    "description": "Add theme support for your Laravel application",
+    "keywords": [
+        "laravel",
+        "laravel theme"
+    ],
+    "type": "library",
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^7.0|^8.0|^9.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "VPominchuk\\LaravelThemeSupport\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vasyl Pominchuk",
+            "email": "vpominchuk@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VPominchuk\\LaravelThemeSupport\\Providers\\ThemeSupportServiceProvider"
+            ]
+        }
+    }
+}
