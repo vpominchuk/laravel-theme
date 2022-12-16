@@ -2,6 +2,7 @@
 
 namespace VPominchuk\LaravelThemeSupport\Commands;
 
+use VPominchuk\LaravelThemeSupport\Contracts\ThemeManager;
 use VPominchuk\LaravelThemeSupport\ThemeService;
 use Illuminate\Console\Command;
 
@@ -26,14 +27,14 @@ class ThemeList extends Command
      *
      * @return int
      */
-    public function handle(ThemeService $themeService)
+    public function handle(ThemeService $themeService, ThemeManager $themeManager)
     {
         $this->line('Themes folder:' . base_path(config('theme.path')));
 
-        $themes = collect($themeService->getThemes())->map(function($theme) {
+        $themes = collect($themeService->getThemes())->map(function($theme) use ($themeManager) {
             return [
                 'system_name' =>
-                    ($theme['system_name'] === config('theme.theme') ? '* ' : '  ') . $theme['system_name'],
+                    ($theme['system_name'] === $themeManager->getActiveTheme() ? '* ' : '  ') . $theme['system_name'],
                 'name' => $theme['name'] ?? '',
                 'description' => $theme['description'] ?? '',
                 'author' => $theme['author']['name'] ?? '',

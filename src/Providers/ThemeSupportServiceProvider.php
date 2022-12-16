@@ -3,13 +3,14 @@
 namespace VPominchuk\LaravelThemeSupport\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use VPominchuk\LaravelThemeSupport\Commands\ThemeActivate;
 use VPominchuk\LaravelThemeSupport\Commands\ThemeCreate;
 use VPominchuk\LaravelThemeSupport\Commands\ThemeInfo;
 use VPominchuk\LaravelThemeSupport\Commands\ThemeList;
 use VPominchuk\LaravelThemeSupport\FileThemeViewFinder;
-use VPominchuk\LaravelThemeSupport\Exceptions\ThemeNotFoundException;
 use VPominchuk\LaravelThemeSupport\Theme;
-use VPominchuk\LaravelThemeSupport\ThemeManager;
+use VPominchuk\LaravelThemeSupport\StorageThemeManager;
+use VPominchuk\LaravelThemeSupport\Contracts\ThemeManager;
 
 class ThemeSupportServiceProvider extends ServiceProvider
 {
@@ -40,6 +41,7 @@ class ThemeSupportServiceProvider extends ServiceProvider
                 ThemeInfo::class,
                 ThemeList::class,
                 ThemeCreate::class,
+                ThemeActivate::class,
             ]);
         }
     }
@@ -48,7 +50,7 @@ class ThemeSupportServiceProvider extends ServiceProvider
     {
         $this->app->bind('view.finder', function ($app) {
             $finder = new FileThemeViewFinder($app['files'], $app['config']['view.paths']);
-            $themeManager = app('theme.manager');
+            $themeManager = app(ThemeManager::class);
 
             $theme = new Theme($themeManager->getActiveTheme(), $finder->getFilesystem());
 
@@ -62,8 +64,6 @@ class ThemeSupportServiceProvider extends ServiceProvider
 
     private function registerThemeManager(): void
     {
-        $this->app->bind('theme.manager', function ($app) {
-            return new ThemeManager();
-        });
+        $this->app->bind(ThemeManager::class, StorageThemeManager::class);
     }
 }
