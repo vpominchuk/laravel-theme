@@ -34,7 +34,7 @@ class ThemeSupportServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/theme.php' => config_path('theme.php')
-        ], 'config');
+        ], 'theme-config');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

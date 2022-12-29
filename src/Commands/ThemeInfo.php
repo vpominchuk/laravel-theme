@@ -2,7 +2,6 @@
 
 namespace VPominchuk\LaravelThemeSupport\Commands;
 
-use Illuminate\Support\Facades\View;
 use VPominchuk\LaravelThemeSupport\ThemeService;
 use Illuminate\Console\Command;
 

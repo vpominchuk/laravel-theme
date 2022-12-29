@@ -2,7 +2,6 @@
 
 namespace VPominchuk\LaravelThemeSupport\Commands;
 
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use VPominchuk\LaravelThemeSupport\Dto\ThemeDto;
 use VPominchuk\LaravelThemeSupport\ThemeService;
@@ -42,6 +41,11 @@ class ThemeCreate extends Command
             return Command::FAILURE;
         }
 
+        if ($themeService->folderExists($systemName)) {
+            $this->error(sprintf('Folder [%s] already exists.', $systemName));
+            return Command::FAILURE;
+        }
+
         $dto->setSystemName($systemName);
 
         $defaultName = ucfirst(Str::replace(['-', '_'], ' ', $systemName));
@@ -72,11 +76,18 @@ class ThemeCreate extends Command
 
         if ($this->confirm('Can I do it for you?', true)) {
             if ($themeService->copyViews($dto)) {
-                $this->info('Woohoo!! Well done!! You can try your awesome application with theming applied.');
+                $this->line('Woohoo!! Well done!!');
+                $this->newLine();
+                $this->line('To activate a newly created theme, run: ');
+                $this->info('php artisan theme:activate ' . $dto->getSystemName());
             } else {
                 $this->error('Oops, something went wrong. I could not copy views. I\'m sorry.');
             }
         }
+
+        $this->newLine();
+        $this->line('To get list of useful commands to manage your themes, run:');
+        $this->info('php artisan list theme');
 
         return Command::SUCCESS;
     }

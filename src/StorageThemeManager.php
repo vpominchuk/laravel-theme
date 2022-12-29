@@ -8,6 +8,12 @@ use VPominchuk\LaravelThemeSupport\Contracts\ThemeManager;
 class StorageThemeManager implements ThemeManager
 {
     private $configFile = 'theme.json';
+    private ThemeService $themeService;
+
+    public function __construct(ThemeService $themeService)
+    {
+        $this->themeService = $themeService;
+    }
 
     public function getActiveTheme(): ?string
     {
@@ -42,14 +48,20 @@ class StorageThemeManager implements ThemeManager
             dirname($themeFile) . " is not writable"
         );
 
-        return file_put_contents(
-            $themeFile,
-            json_encode(
-                [
-                    'active_theme' => $systemName
-                ],
-                JSON_PRETTY_PRINT
+        if (
+            file_put_contents(
+                $themeFile,
+                json_encode(
+                    [
+                        'active_theme' => $systemName
+                    ],
+                    JSON_PRETTY_PRINT
+                )
             )
-        ) > 0;
+        ) {
+            return $this->themeService->createPublicSymlink($systemName);
+        }
+
+        return false;
     }
 }

@@ -10,12 +10,21 @@ use VPominchuk\LaravelThemeSupport\Dto\ThemeDto;
 class ThemeService
 {
     private \Illuminate\Filesystem\Filesystem $filesystem;
+    private string $relativeThemesPath;
 
     public function __construct()
     {
-        /** @var FileThemeViewFinder $fileThemeViewFinder */
-        $fileThemeViewFinder = app('view.finder');
-        $this->filesystem = $fileThemeViewFinder->getFilesystem();
+        $this->filesystem = app('files');
+        $this->relativeThemesPath = config('theme.path');
+    }
+
+    private function getThemesFolderPath($path = null): string
+    {
+        if ($path === null) {
+            return base_path($this->relativeThemesPath);
+        }
+
+        return base_path($this->relativeThemesPath) . DIRECTORY_SEPARATOR . $path;
     }
 
     private function arrayDot($array, $prepend = '')
@@ -34,7 +43,7 @@ class ThemeService
     public function getThemes(): array
     {
         $result = [];
-        $themeIndexes = glob(base_path(config('theme.path')) . DIRECTORY_SEPARATOR . "*");
+        $themeIndexes = glob($this->getThemesFolderPath() . DIRECTORY_SEPARATOR . "*");
 
         foreach ($themeIndexes as $jsonFile) {
             try {
@@ -85,8 +94,8 @@ class ThemeService
 
     public function create(ThemeDto $dto): string
     {
-        $themesPath = base_path(config('theme.path'));
-        $themePath = $themesPath . DIRECTORY_SEPARATOR . $dto->getSystemName();
+        $themesPath = $this->getThemesFolderPath();
+        $themePath = $this->getThemesFolderPath($dto->getSystemName());
 
         throw_if(
             !$this->makeDirectory($themesPath),
@@ -115,6 +124,12 @@ class ThemeService
             "Could not create directory " . $themePath . DIRECTORY_SEPARATOR . $dto->getViewsPath()
         );
 
+        throw_if(
+            !$this->makeDirectory($themePath . DIRECTORY_SEPARATOR . $dto->getPublicPath()),
+            \RuntimeException::class,
+            "Could not create directory " . $themePath . DIRECTORY_SEPARATOR . $dto->getPublicPath()
+        );
+
         $namespaces = $dto->getNamespaces();
 
         foreach ($namespaces as $namespace) {
@@ -130,13 +145,48 @@ class ThemeService
 
     public function copyViews(ThemeDto $dto): bool
     {
-        $themesPath = base_path(config('theme.path'));
-
         $source = resource_path('views');
-        $destination = $themesPath . DIRECTORY_SEPARATOR .
-            $dto->getSystemName() . DIRECTORY_SEPARATOR .
-            $dto->getViewsPath();
+        $destination = $this->getThemesFolderPath($dto->getSystemName()) . DIRECTORY_SEPARATOR . $dto->getViewsPath();
 
         return $this->filesystem->copyDirectory($source, $destination);
+    }
+
+    public function folderExists(string $systemName): bool
+    {
+        $path = $this->getThemesFolderPath($systemName);
+        return $this->filesystem->exists($path);
+    }
+
+    private function getLinkRelativePath(string $path): string
+    {
+        return implode(
+            DIRECTORY_SEPARATOR,
+            array_fill(0, count(explode("/", $path)), '..')
+        );
+    }
+
+    public function createPublicSymlink(string $systemName): bool
+    {
+        $public = base_path('public') . DIRECTORY_SEPARATOR . 'themes';
+
+        if (!$this->makeDirectory($public)) {
+            return false;
+        }
+
+        $symlinkDestination = $public . DIRECTORY_SEPARATOR . $systemName;
+        $linkRelativePath = $this->getLinkRelativePath($this->relativeThemesPath . DIRECTORY_SEPARATOR . $systemName);
+
+        $theme = new Theme($systemName);
+
+        if ($this->filesystem->exists($symlinkDestination)) {
+            $this->filesystem->delete($symlinkDestination);
+        }
+
+        $this->filesystem->link(
+            $linkRelativePath . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $systemName . DIRECTORY_SEPARATOR . $theme->getInfo()->getPublicPath(),
+            $symlinkDestination
+        );
+
+        return $this->filesystem->exists($symlinkDestination);
     }
 }
