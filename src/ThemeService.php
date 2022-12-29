@@ -47,7 +47,8 @@ class ThemeService
 
         foreach ($themeIndexes as $jsonFile) {
             try {
-                $themeInfo = $this->getThemeInfo(basename($jsonFile));
+                $themeDto = $this->getThemeInfo(basename($jsonFile));
+                $themeInfo = $themeDto->toArray();
             } catch (Exception $e) {
                 $themeInfo = [
                     'name' => 'ERROR',
@@ -61,22 +62,22 @@ class ThemeService
         return $result;
     }
 
-    public function getThemeInfo(string $systemName): ?array
+    public function getThemeInfo(string $systemName): ?ThemeDto
     {
         $theme = new Theme($systemName);
 
-        return optional($theme->getInfo())->toArray();
+        return $theme->getInfo();
     }
 
     public function getThemeInfoFlatten(string $systemName): ?array
     {
-        $themeInfo = $this->getThemeInfo($systemName);
+        $themeDto = $this->getThemeInfo($systemName);
 
-        if ($themeInfo === null) {
+        if ($themeDto->getSystemName() === null) {
             return null;
         }
 
-        $info = collect($this->arrayDot($themeInfo));
+        $info = collect($this->arrayDot($themeDto->toArray()));
 
         return $info->map(function($value, $key) {
             return [ $key, $value ];
