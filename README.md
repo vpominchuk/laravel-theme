@@ -1,3 +1,4 @@
+![](https://banners.beyondco.de/Laravel%20Theme.png?theme=light&packageManager=composer+require&packageName=vpominchuk%2Flaravel-theme&pattern=texture&style=style_1&description=Add+multiple+theme+support+to+your+Laravel+application&md=1&showWatermark=0&fontSize=100px&images=https%3A%2F%2Flaravel.com%2Fimg%2Flogomark.min.svg)
 # Laravel Multiple Theme
 A package that allows developers to implement 
 multiple theme support to their Laravel applications quickly and 
