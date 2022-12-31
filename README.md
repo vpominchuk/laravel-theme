@@ -24,7 +24,7 @@ $ php artisan theme:create
 and answer some general question.
 
 
-## Available Artisan commands
+## Available artisan commands
 To get list of available artisan commands try:
 ```shell
 $ php artisan theme list
@@ -38,7 +38,7 @@ $ php artisan theme list
 | `theme:activate {theme_name}` | Activate theme        |
 
 ## Switching between themes
-You can easily switch between youe themes in two different ways:
+You can easily switch between your themes in two different ways:
 
 1. Using artisan command
 ```shell
@@ -65,37 +65,7 @@ By default, `ThemeManager` class stores information about active theme in
 ```
 In real application you might want to use your own mechanism to store information about active theme.
 
-To do it, you can create a new class, for instance:
-
-```php
-namespace App\Services\Theme;
-
-
-use App\Facades\Settings;
-use VPominchuk\LaravelThemeSupport\Contracts\ThemeManager as ThemeManagerInterface;
-use VPominchuk\LaravelThemeSupport\ThemeService;
-
-class ThemeManager implements ThemeManagerInterface
-{
-    public function __construct(private ThemeService $themeService)
-    { }
-
-    public function getActiveTheme(): ?string
-    {
-        return Settings::get('ACTIVE_THEME');
-    }
-
-    public function setActiveTheme(string $systemName): bool
-    {
-        Settings::set('ACTIVE_THEME', $systemName);
-
-        return $this->themeService->createPublicSymlink($systemName);
-    }
-}
-```
-
-Where `Settings` class is your Facade/Service/Model... which saves settings for your application.
-Replace it with your own class/method.
+Follow [this documentation](https://pominchuk.com/post/11-add-multiple-theme-support-for-laravel-application) to make your own `ThemeManager` implementation.
 
 ## Security
 
