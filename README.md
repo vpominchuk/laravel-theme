@@ -14,7 +14,7 @@ It also offers a theme helper commands to allow for easy switch between themes, 
 ## Installation
 ```shell
 $ composer require vpominchuk/laravel-theme
-$ php artisan vendor:publish --tag=config
+$ php artisan vendor:publish --tag=theme-config
 ```
 
 ## Converting your views to a theme

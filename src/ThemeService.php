@@ -15,7 +15,7 @@ class ThemeService
     public function __construct()
     {
         $this->filesystem = app('files');
-        $this->relativeThemesPath = config('theme.path');
+        $this->relativeThemesPath = config('theme.path') ?? 'themes';
     }
 
     private function getThemesFolderPath($path = null): string
