@@ -41,6 +41,14 @@ class ThemeCreate extends Command
             return Command::FAILURE;
         }
 
+        $normalizedSystemName = Str::slug($systemName, '_');
+
+        if ($normalizedSystemName !== $systemName) {
+            $systemName = $normalizedSystemName;
+
+            $this->line('Folder Name: ' . $systemName);
+        }
+
         if ($themeService->folderExists($systemName)) {
             $this->error(sprintf('Folder [%s] already exists.', $systemName));
             return Command::FAILURE;
